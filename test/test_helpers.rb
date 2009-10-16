@@ -23,6 +23,12 @@ class TestHelpers < Test::Unit::TestCase
 
       Loofah::Helpers.sanitize HTML_STRING
     end
+    
+    should "produce expected results with options set" do
+      assert_equal('ASDF<ul><li>1</li></ul>',
+        Loofah::Helpers.sanitize('<html><h1>ASDF</h1><body><UL><li>1</li></ul></body></html>', {:tags => ['ul', 'li']})
+      )
+    end
   end
 
 end
