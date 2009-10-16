@@ -2,12 +2,26 @@ require 'cgi'
 
 module Loofah
   module HTML5
-    module Scrub
+    class Scrub
+      
+      @options = {}
 
-      class << self
+        def self.options=(opts)
+          @options = opts
+        end
+        
+        def self.options
+          @options || {}
+        end
+        
+        def self.allowed_element? (name)
+          return false unless HashedWhiteList::ALLOWED_ELEMENTS[name]
+          return false if options[:tags] && !(options[:tags].include? name.downcase)
+          true
+        end
 
         #  alternative implementation of the html5lib attribute scrubbing algorithm
-        def scrub_attributes(node)
+        def self.scrub_attributes(node)
           node.attribute_nodes.each do |attr_node|
             attr_name = if attr_node.namespace
                           "#{attr_node.namespace.prefix}:#{attr_node.node_name}"
@@ -15,6 +29,7 @@ module Loofah
                           attr_node.node_name
                         end
             attr_node.remove unless HashedWhiteList::ALLOWED_ATTRIBUTES[attr_name]
+            attr_node.remove if options[:attributes] && !(options[:attributes].include? attr_name.downcase)
             if HashedWhiteList::ATTR_VAL_IS_URI[attr_name]
               # this block lifted nearly verbatim from HTML5 sanitization
               val_unescaped = CGI.unescapeHTML(attr_node.value).gsub(/`|[\000-\040\177\s]+|\302[\200-\240]/,'').downcase
@@ -35,7 +50,7 @@ module Loofah
         end
 
         #  lifted nearly verbatim from html5lib
-        def scrub_css(style)
+        def self.scrub_css(style)
           # disallow urls
           style = style.to_s.gsub(/url\s*\(\s*[^\s)]+?\s*\)\s*/, ' ')
 
@@ -61,8 +76,6 @@ module Loofah
 
           style = clean.join(' ')
         end
-
-      end
 
     end
   end

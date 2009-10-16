@@ -39,7 +39,7 @@ module Loofah
       def sanitize(node)
         case node.type
         when Nokogiri::XML::Node::ELEMENT_NODE
-          if HTML5::HashedWhiteList::ALLOWED_ELEMENTS[node.name]
+          if HTML5::Scrub.allowed_element? node.name
             HTML5::Scrub.scrub_attributes node
             return false
           end
@@ -73,7 +73,7 @@ module Loofah
       def whitewash(node)
         case node.type
         when Nokogiri::XML::Node::ELEMENT_NODE
-          if HTML5::HashedWhiteList::ALLOWED_ELEMENTS[node.name]
+          if HTML5::Scrub.allowed_element? node.name
             node.attributes.each { |attr| node.remove_attribute(attr.first) }
             return false if node.namespaces.empty?
           end

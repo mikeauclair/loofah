@@ -15,8 +15,11 @@ module Loofah
       #
       #   Loofah::Helpers.sanitize("<script src=http://ha.ckers.org/xss.js></script>") # => "&lt;script src=\"http://ha.ckers.org/xss.js\"&gt;&lt;/script&gt;"
       #
-      def sanitize(string_or_io)
+      def sanitize(string_or_io, options={})
+        old_opts = Loofah::HTML5::Scrub.options
+        Loofah::HTML5::Scrub.options = options
         Loofah.scrub_fragment(string_or_io, :strip).to_s
+        Loofah::HTML5::Scrub.options = old_opts
       end
     end
   end
